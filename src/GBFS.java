@@ -41,6 +41,7 @@ public class GBFS extends Solver {
                 System.out.println("Jumlah node dikunjungi: " + nodesVisited);
                 System.out.println("Jumlah langkah: " + current.path.size());
                 System.out.println("Waktu eksekusi: " + (endTime - startTime) + " ms");
+                this.resultBoard = current.board;
                 printPath(current);
                 return;
             }
