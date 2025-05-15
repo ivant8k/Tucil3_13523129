@@ -1,16 +1,21 @@
+import java.util.List;
+
 public abstract class Solver {
     protected Board startBoard;
-    protected Board resultBoard = null;  // hasil akhir pencarian
+    protected Board resultBoard = null;
+    protected List<Move> solutionPath = null;
 
     public Solver(Board board) {
         this.startBoard = board;
     }
 
-    // Method yang dipanggil GUI untuk ambil hasil akhir
     public Board getResultBoard() {
         return resultBoard;
     }
 
-    // Harus diset di kelas turunan jika ditemukan solusi
+    public List<Move> getSolutionPath() {
+        return solutionPath;
+    }
+
     public abstract void solve();
 }

@@ -8,6 +8,10 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.util.Duration;
+
 import java.io.*;
 import java.util.List;
 
@@ -111,11 +115,10 @@ public class RushHourGUI extends Application {
 
                 if (ch == '.') {
                     rect.setFill(Color.LIGHTGRAY);
-                } else if (ch == 'K') {
-                    rect.setFill(Color.GOLD);
                 } else {
-                    rect.setFill(Color.DARKCYAN);
+                    rect.setFill(getColorForSymbol(ch));
                 }
+                
 
                 Label label = new Label(String.valueOf(ch));
                 StackPane cell = new StackPane(rect, label);
@@ -155,14 +158,69 @@ public class RushHourGUI extends Application {
         // Setelah selesai, tampilkan hasil dan update papan
         Board result = solver.getResultBoard();
         if (result != null) {
-            board = result;
-            drawBoard();
-            statusLabel.setText("Solver selesai. Status goal: " + (board.isGoal() ? "TERCAPAI" : "BELUM"));
+            List<Move> solution = solver.getSolutionPath();
+            animateSolution(solution);
         } else {
             statusLabel.setText("Solver tidak menemukan solusi.");
         }
+        
     }
 
+    private void animateSolution(List<Move> moves) {
+        if (board == null || moves == null || moves.isEmpty()) return;
+    
+        Timeline timeline = new Timeline();
+        Board current = board;
+    
+        for (int i = 0; i < moves.size(); i++) {
+            Move move = moves.get(i);
+            Board next = current.applyMove(move);
+            int step = i;
+            KeyFrame frame = new KeyFrame(Duration.seconds(0.5 * (step + 1)), e -> {
+                board = next;
+                drawBoard();
+                statusLabel.setText("Langkah ke-" + (step + 1) + ": " + move);
+            });
+            timeline.getKeyFrames().add(frame);
+            current = next;
+        }
+    
+        timeline.play();
+    }
+    
+    private static Color getColorForSymbol(char symbol) {
+        return switch (symbol) {
+            case 'A' -> Color.RED;
+            case 'B' -> Color.BLUE;
+            case 'C' -> Color.GREEN;
+            case 'D' -> Color.ORANGE;
+            case 'E' -> Color.MAGENTA;
+            case 'F' -> Color.CYAN;
+            case 'G' -> Color.PINK;
+            case 'H' -> Color.rgb(255, 165, 0);       // Orange terang
+            case 'I' -> Color.rgb(128, 0, 128);       // Ungu
+            case 'J' -> Color.rgb(0, 255, 255);       // Aqua
+            case 'K' -> Color.rgb(255, 215, 0);       // Emas
+            case 'L' -> Color.rgb(139, 69, 19);       // Coklat
+            case 'M' -> Color.rgb(255, 0, 255);       // Fuchsia
+            case 'N' -> Color.rgb(0, 128, 128);       // Teal
+            case 'O' -> Color.rgb(128, 128, 0);       // Olive
+            case 'P' -> Color.rgb(0, 0, 128);         // Navy
+            case 'Q' -> Color.rgb(178, 34, 34);       // Merah gelap
+            case 'R' -> Color.rgb(70, 130, 180);      // Baja Biru
+            case 'S' -> Color.rgb(218, 112, 214);     // Orchid
+            case 'T' -> Color.rgb(240, 230, 140);     // Khaki
+            case 'U' -> Color.rgb(154, 205, 50);      // Hijau Kuning
+            case 'V' -> Color.rgb(255, 99, 71);       // Tomato
+            case 'W' -> Color.rgb(173, 216, 230);     // Biru Muda
+            case 'X' -> Color.rgb(199, 21, 133);      // Deep Pink
+            case 'Y' -> Color.rgb(0, 191, 255);       // Deep Sky Blue
+            case 'Z' -> Color.rgb(144, 238, 144);     // Hijau Muda
+            default -> Color.LIGHTGRAY;
+        };
+    }
+    
+    
     public static void main(String[] args) {
         launch(args);
     }
