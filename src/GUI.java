@@ -189,9 +189,16 @@ public class GUI extends JFrame {
         // Algorithm selection
         JPanel algorithmPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         algorithmPanel.add(new JLabel("Algorithm:"));
-        String[] algorithms = {"UCS", "A* (Manhattan)", "A* (Euclidean)", "A* (Chebyshev)"};
+        String[] algorithms = {"UCS", "GBFS", "A*", "IDA*"};
         algorithmCombo = new JComboBox<>(algorithms);
         algorithmPanel.add(algorithmCombo);
+
+        // Heuristic selection
+        JPanel heuristicPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        heuristicPanel.add(new JLabel("Heuristic:"));
+        String[] heuristics = {"Manhattan Distance", "Euclidean Distance", "Chebyshev Distance"};
+        JComboBox<String> heuristicCombo = new JComboBox<>(heuristics);
+        heuristicPanel.add(heuristicCombo);
 
         // Solve button
         solveButton = new JButton("Solve Puzzle");
@@ -214,10 +221,89 @@ public class GUI extends JFrame {
         controlPanel.add(Box.createVerticalStrut(10));
         controlPanel.add(algorithmPanel);
         controlPanel.add(Box.createVerticalStrut(10));
+        controlPanel.add(heuristicPanel);
+        controlPanel.add(Box.createVerticalStrut(10));
         controlPanel.add(navPanel);
         controlPanel.add(Box.createVerticalStrut(10));
         controlPanel.add(solveButton);
         controlPanel.add(Box.createVerticalGlue());
+
+        // Add event listener for solve button
+        solveButton.addActionListener(e -> {
+            if (board == null || board.getPieces().length == 0) {
+                JOptionPane.showMessageDialog(this,
+                    "Please add some pieces to the board first!",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (board.getPrimaryVehicleId() == 'A') {
+                JOptionPane.showMessageDialog(this,
+                    "Please set a primary vehicle first!",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (board.exitRow == -1 || board.exitCol == -1) {
+                JOptionPane.showMessageDialog(this,
+                    "Please set an exit point first!",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            String selectedAlgorithm = (String) algorithmCombo.getSelectedItem();
+            String selectedHeuristic = (String) heuristicCombo.getSelectedItem();
+            String heuristicMode = switch (selectedHeuristic) {
+                case "Manhattan Distance" -> "1";
+                case "Euclidean Distance" -> "2";
+                case "Chebyshev Distance" -> "3";
+                default -> "1";
+            };
+
+            Solver solver = switch (selectedAlgorithm) {
+                case "UCS" -> new UCS(board, heuristicMode);
+                case "GBFS" -> new GBFS(board, heuristicMode);
+                case "A*" -> new AStar(board, heuristicMode);
+                case "IDA*" -> new IDAStar(board, heuristicMode);
+                default -> new UCS(board, heuristicMode);
+            };
+
+            try {
+                long startTime = System.currentTimeMillis();
+                solver.solve();
+                long endTime = System.currentTimeMillis();
+
+                if (solver.getSolutionPath() != null) {
+                    solutionPath = solver.getSolutionPath();
+                    currentMoveIndex = -1;
+                    nextMoveButton.setEnabled(true);
+                    prevMoveButton.setEnabled(false);
+
+                    StringBuilder message = new StringBuilder();
+                    message.append("Solution found!\n\n");
+                    message.append("Algorithm: ").append(selectedAlgorithm).append("\n");
+                    message.append("Heuristic: ").append(selectedHeuristic).append("\n");
+                    message.append("Number of moves: ").append(solutionPath.size()).append("\n");
+                    message.append("Time taken: ").append(endTime - startTime).append(" ms\n\n");
+                    message.append("Moves:\n");
+                    for (Move move : solutionPath) {
+                        message.append(move).append("\n");
+                    }
+                    JOptionPane.showMessageDialog(this, message.toString(), "Solution", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this, "No solution found!", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this,
+                    "Error solving puzzle: " + ex.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            }
+        });
     }
 
     private void layoutComponents() {
@@ -273,82 +359,6 @@ public class GUI extends JFrame {
             } catch (IllegalArgumentException ex) {
                 JOptionPane.showMessageDialog(this,
                     "Error setting exit: " + ex.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-            }
-        });
-
-        solveButton.addActionListener(e -> {
-            if (board == null || board.getPieces().length == 0) {
-                JOptionPane.showMessageDialog(this,
-                    "Please add some pieces to the board first!",
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            if (board.getPrimaryVehicleId() == 'A') {
-                JOptionPane.showMessageDialog(this,
-                    "Please set a primary vehicle first!",
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            if (board.exitRow == -1 || board.exitCol == -1) {
-                JOptionPane.showMessageDialog(this,
-                    "Please set an exit point first!",
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            String selectedAlgorithm = (String) algorithmCombo.getSelectedItem();
-            Solver solver;
-            switch (selectedAlgorithm) {
-                case "UCS":
-                    solver = new UCS(board, "1");
-                    break;
-                case "A* (Manhattan)":
-                    solver = new AStar(board, "1");
-                    break;
-                case "A* (Euclidean)":
-                    solver = new AStar(board, "2");
-                    break;
-                case "A* (Chebyshev)":
-                    solver = new AStar(board, "3");
-                    break;
-                default:
-                    solver = new UCS(board, "1");
-            }
-
-            try {
-                long startTime = System.currentTimeMillis();
-                solver.solve();
-                long endTime = System.currentTimeMillis();
-
-                if (solver.getSolutionPath() != null) {
-                    solutionPath = solver.getSolutionPath();
-                    currentMoveIndex = -1;
-                    nextMoveButton.setEnabled(true);
-                    prevMoveButton.setEnabled(false);
-
-                    StringBuilder message = new StringBuilder();
-                    message.append("Solution found!\n\n");
-                    message.append("Number of moves: ").append(solutionPath.size()).append("\n");
-                    message.append("Time taken: ").append(endTime - startTime).append(" ms\n\n");
-                    message.append("Moves:\n");
-                    for (Move move : solutionPath) {
-                        message.append(move).append("\n");
-                    }
-                    JOptionPane.showMessageDialog(this, message.toString(), "Solution", JOptionPane.INFORMATION_MESSAGE);
-                } else {
-                    JOptionPane.showMessageDialog(this, "No solution found!", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace(); // Add this for debugging
-                JOptionPane.showMessageDialog(this,
-                    "Error solving puzzle: " + ex.getMessage(),
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
             }
