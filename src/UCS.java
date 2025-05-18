@@ -1,8 +1,16 @@
 import java.util.*;
 
 public class UCS extends Solver {
+    private String heuristicChoice;
+
     public UCS(Board board) {
         super(board);
+        this.heuristicChoice = "3"; // Default to Combined heuristic
+    }
+
+    public UCS(Board board, String heuristicChoice) {
+        super(board);
+        this.heuristicChoice = heuristicChoice;
     }
 
     @Override
@@ -38,13 +46,9 @@ public class UCS extends Solver {
             if (current.board.isGoal()) {
                 // Selesai!
                 long endTime = System.currentTimeMillis();
-                System.out.println("Solusi ditemukan dengan UCS!");
-                System.out.println("Jumlah node dikunjungi: " + nodesVisited);
-                System.out.println("Jumlah langkah: " + current.path.size());
-                System.out.println("Waktu eksekusi: " + (endTime - startTime) + " ms");
-                this.resultBoard = current.board;
                 this.solutionPath = current.path;
-                printPath(current);
+                this.visitedCount = nodesVisited;
+                this.executionTimeMs = endTime - startTime;
                 return;
             }
 

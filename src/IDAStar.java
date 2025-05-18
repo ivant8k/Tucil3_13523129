@@ -20,7 +20,6 @@ public class IDAStar extends Solver {
             Result result = dfs(new State(startBoard, new ArrayList<>(), 0, 0), threshold, visited);
     
             if (result.found) {
-                this.resultBoard = result.state.board;
                 this.solutionPath = result.state.path;
                 long endTime = System.currentTimeMillis();
                 System.out.println("Solusi ditemukan dengan IDA*!");

@@ -46,7 +46,6 @@ public class AStar extends Solver {
                 System.out.println("Jumlah langkah: " + current.path.size());
                 System.out.println("Waktu eksekusi: " + (endTime - startTime) + " ms");
                 printPath(current);
-                this.resultBoard = current.board;
                 this.solutionPath = current.path;
                 return;
             }

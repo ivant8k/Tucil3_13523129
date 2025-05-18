@@ -180,4 +180,36 @@ public class Board {
 
         return newBoard;
     }
+
+    public void printWithHighlight(Move move) {
+        final String RESET = "\u001B[0m";
+        final String BLUE = "\u001B[34m";    // Primary piece
+        final String YELLOW = "\u001B[33m";  // Exit
+        final String RED = "\u001B[31m";     // Piece yang digerakkan
+    
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                char ch = grid[i][j];
+    
+                if (ch == 'K') {
+                    System.out.print(YELLOW + ch + RESET);
+                } else if (primaryPiece != null && isInsidePiece(i, j, primaryPiece)) {
+                    System.out.print(BLUE + ch + RESET);
+                } else if (ch == move.pieceId) {
+                    System.out.print(RED + ch + RESET);
+                } else {
+                    System.out.print(ch);
+                }
+            }
+            System.out.println();
+        }
+    }
+    private boolean isInsidePiece(int row, int col, Piece piece) {
+        if (piece.isHorizontal) {
+            return row == piece.row && col >= piece.col && col < piece.col + piece.length;
+        } else {
+            return col == piece.col && row >= piece.row && row < piece.row + piece.length;
+        }
+    }
+    
 }
