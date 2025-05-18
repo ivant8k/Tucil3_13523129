@@ -103,13 +103,17 @@ public class Main {
         System.out.print("\nPilih algoritma (UCS/GBFS/A*/IDA*): ");
         String algo = scanner.nextLine().trim().toLowerCase();
 
-        String heuristicChoice = "3";
+        String heuristicChoice = "1"; // Default ke Manhattan
         if (algo.equals("ucs") || algo.equals("gbfs") || algo.equals("a*") || algo.equals("astar") || algo.equals("ida*") || algo.equals("idastar")) {
-            System.out.print("Pilih heuristic (1 = Distance, 2 = BlockingCars, 3 = Combined): ");
+            System.out.println("Pilih heuristic:");
+            System.out.println("1 = Manhattan Distance");
+            System.out.println("2 = Euclidean Distance");
+            System.out.println("3 = Chebyshev Distance");
+            System.out.print("Pilihan (1-3): ");
             heuristicChoice = scanner.nextLine().trim();
             if (!heuristicChoice.matches("[123]")) {
-                System.out.println("Heuristic tidak valid. Menggunakan Combined (3).");
-                heuristicChoice = "3";
+                System.out.println("Heuristic tidak valid. Menggunakan Manhattan Distance (1).");
+                heuristicChoice = "1";
             }
         }
 
