@@ -5,9 +5,6 @@ public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
-        // Aktifkan debug Board jika diperlukan
-        Board.DEBUG = false;
-
         System.out.print("Masukkan nama file input: ");
         String filename = scanner.nextLine();
 
@@ -19,7 +16,7 @@ public class Main {
             int rows = Integer.parseInt(dim[0]);
             int cols = Integer.parseInt(dim[1]);
 
-            // Baca jumlah kendaraan (belum digunakan)
+            // Baca jumlah kendaraan
             int n = Integer.parseInt(reader.readLine());
 
             // Baca seluruh sisa baris file ke list
@@ -97,8 +94,10 @@ public class Main {
         }
 
         if (board != null) {
-            System.out.print("\nPilih algoritma (UCS/GBFS/A*): ");
+            System.out.print("\nPilih algoritma (UCS/GBFS/A*/IDA*): ");
             String algo = scanner.nextLine().trim().toLowerCase();
+            System.out.print("\nPilih heuristic (1 = Distance, 2 = BlockingCars, 3 = Combined): ");
+            String heuristicChoice = scanner.nextLine().trim();    
 
             Solver solver = null;
             switch (algo) {
@@ -106,15 +105,19 @@ public class Main {
                     solver = new UCS(board);
                     break;
                 case "gbfs":
-                    solver = new GBFS(board);
+                    solver = new GBFS(board, heuristicChoice);
                     break;
                 case "a*":
                 case "astar":
-                    solver = new AStar(board);
+                    solver = new AStar(board, heuristicChoice);
+                    break;
+                case "ida*":
+                case "idastar":
+                    solver = new IDAStar(board, heuristicChoice);
                     break;
                 default:
                     System.out.println("Algoritma tidak dikenali. Menggunakan A* sebagai default.");
-                    solver = new AStar(board);
+                    solver = new AStar(board, heuristicChoice);
             }
 
             if (solver != null) {

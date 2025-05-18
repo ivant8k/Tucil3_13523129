@@ -1,8 +1,10 @@
 import java.util.*;
 
 public class AStar extends Solver {
-    public AStar(Board board) {
+    private String heuristicMode;
+    public AStar(Board board, String heuristicMode) {
         super(board);
+        this.heuristicMode = heuristicMode;
     }
 
     @Override

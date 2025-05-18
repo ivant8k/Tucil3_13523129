@@ -147,6 +147,10 @@ public class RushHourGUI extends Application {
             case "astar":
                 solver = new AStar(board);
                 break;
+            case "ida*":
+            case "idastar":
+                solver = new IDAStar(board);
+                break;
             default:
                 statusLabel.setText("Algoritma tidak dikenali.");
                 return;

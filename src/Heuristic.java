@@ -73,4 +73,13 @@ public class Heuristic {
     public static int combinedHeuristic(Board board) {
         return blockingCars(board) * 2 + distanceToExit(board);
     }
+    
+    public static int estimate(Board board, String mode) {
+        return switch (mode.toLowerCase()) {
+            case "distance", "1" -> distanceToExit(board);
+            case "blocking", "2" -> blockingCars(board);
+            case "combined", "3" -> combinedHeuristic(board);
+            default -> combinedHeuristic(board); // fallback
+        };
+    }
 }

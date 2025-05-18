@@ -1,8 +1,11 @@
 import java.util.*;
 
 public class GBFS extends Solver {
-    public GBFS(Board board) {
+    private String heuristicMode;
+
+    public GBFS(Board board, String heuristicMode) {
         super(board);
+        this.heuristicMode = heuristicMode;
     }
 
     @Override
