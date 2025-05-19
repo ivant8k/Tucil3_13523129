@@ -38,7 +38,7 @@ public class IDAStar extends Solver {
     
 
     private Result dfs(State current, int threshold, Set<String> visited) {
-        int f = current.cost + Heuristic.combinedHeuristic(current.board);
+        int f = current.cost + Heuristic.estimate(current.board, heuristicMode);
         if (f > threshold) {
             return new Result(false, null, f);
         }

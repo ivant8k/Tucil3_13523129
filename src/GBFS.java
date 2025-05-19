@@ -25,7 +25,7 @@ public class GBFS extends Solver {
         
         Set<String> visited = new HashSet<>();
 
-        State start = new State(startBoard, new ArrayList<>(), 0, Heuristic.blockingCars(startBoard));
+        State start = new State(startBoard, new ArrayList<>(), 0, Heuristic.estimate(startBoard, heuristicMode));
         pq.add(start);
 
         int nodesVisited = 0;
@@ -50,7 +50,7 @@ public class GBFS extends Solver {
                 Board newBoard = current.board.applyMove(move);
                 List<Move> newPath = new ArrayList<>(current.path);
                 newPath.add(move);
-                int h = Heuristic.blockingCars(newBoard);
+                int h = Heuristic.estimate(newBoard, heuristicMode);
                 pq.add(new State(newBoard, newPath, current.path.size() + 1, h));
             }
         }

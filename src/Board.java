@@ -8,6 +8,7 @@ public class Board {
     public Piece primaryPiece;
     public int exitRow = -1, exitCol = -1;
     public int rows, cols;
+    public char primaryVehicleId;
 
     public Board(String[] config) {
         this.rows = config.length;
@@ -53,6 +54,23 @@ public class Board {
             Piece p = new Piece(id, isHorizontal, len, first[0], first[1]);
             if (id == 'P') primaryPiece = p;
             pieces.add(p);
+        }
+    }
+
+    public Board(int rows, int cols) {
+        this.rows = rows;
+        this.cols = cols;
+        this.grid = new char[rows][cols];
+        this.pieces = new ArrayList<>();
+        this.exitRow = -1;
+        this.exitCol = -1;
+        this.primaryVehicleId = 'A';
+        
+        // Initialize grid with empty spaces
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                grid[i][j] = '.';
+            }
         }
     }
 
@@ -212,4 +230,179 @@ public class Board {
         }
     }
     
+    public int getRows() {
+        return rows;
+    }
+
+    public int getCols() {
+        return cols;
+    }
+
+    public Piece[] getPieces() {
+        return pieces.toArray(new Piece[0]);
+    }
+
+    public Piece getPieceById(char id) {
+        for (Piece piece : pieces) {
+            if (piece != null && piece.id == id) {
+                return piece;
+            }
+        }
+        return null;
+    }
+
+    public void addVehicle(char id, boolean isHorizontal, int length, int row, int col) {
+        // Check if position is valid
+        if (row < 0 || row >= rows || col < 0 || col >= cols) {
+            throw new IllegalArgumentException("Vehicle position must be within board boundaries");
+        }
+
+        // Check if vehicle fits
+        if (isHorizontal) {
+            if (col + length > cols) {
+                throw new IllegalArgumentException("Vehicle does not fit horizontally");
+            }
+        } else {
+            if (row + length > rows) {
+                throw new IllegalArgumentException("Vehicle does not fit vertically");
+            }
+        }
+
+        // Check if space is available
+        for (int i = 0; i < length; i++) {
+            int r = isHorizontal ? row : row + i;
+            int c = isHorizontal ? col + i : col;
+            if (grid[r][c] != '.') {
+                throw new IllegalArgumentException("Space is already occupied");
+            }
+        }
+
+        // Create new piece with next available ID
+        char vehicleId = getNextAvailableId();
+        Piece piece = new Piece(vehicleId, isHorizontal, length, row, col);
+        
+        // Add to pieces array
+        pieces.add(piece);
+        if (id == primaryVehicleId) {
+            primaryPiece = piece;
+        }
+
+        // Update grid
+        for (int i = 0; i < length; i++) {
+            int r = isHorizontal ? row : row + i;
+            int c = isHorizontal ? col + i : col;
+            grid[r][c] = vehicleId;
+        }
+    }
+
+    private char getNextAvailableId() {
+        // Start from 'A'
+        char nextId = 'A';
+        
+        // Find the next available ID
+        while (true) {
+            boolean idExists = false;
+            for (Piece piece : pieces) {
+                if (piece.id == nextId) {
+                    idExists = true;
+                    break;
+                }
+            }
+            
+            if (!idExists) {
+                return nextId;
+            }
+            
+            // Simply increment to next letter
+            nextId++;
+            if (nextId > 'Z') {
+                nextId = 'A'; // Reset to 'A' if we reach 'Z'
+            }
+        }
+    }
+
+    public void removePiece(char id) {
+        Piece pieceToRemove = null;
+        for (Piece piece : pieces) {
+            if (piece.id == id) {
+                pieceToRemove = piece;
+                break;
+            }
+        }
+
+        if (pieceToRemove == null) {
+            throw new IllegalArgumentException("Piece not found");
+        }
+
+        // Remove from grid
+        for (int i = 0; i < pieceToRemove.length; i++) {
+            int r = pieceToRemove.isHorizontal ? pieceToRemove.row : pieceToRemove.row + i;
+            int c = pieceToRemove.isHorizontal ? pieceToRemove.col + i : pieceToRemove.col;
+            grid[r][c] = '.';
+        }
+
+        // Remove from pieces list
+        pieces.remove(pieceToRemove);
+
+        // Update primary piece if needed
+        if (pieceToRemove.id == primaryVehicleId) {
+            primaryPiece = null;
+            primaryVehicleId = 'A';
+        }
+    }
+
+    public void setPrimaryVehicle(char id) {
+        boolean found = false;
+        Piece newPrimary = null;
+        for (Piece piece : pieces) {
+            if (piece.id == id) {
+                found = true;
+                newPrimary = piece;
+                break;
+            }
+        }
+        if (!found) {
+            throw new IllegalArgumentException("Vehicle with ID " + id + " not found");
+        }
+
+        // Remove old primary piece's P from grid
+        if (primaryPiece != null) {
+            for (int i = 0; i < primaryPiece.length; i++) {
+                int r = primaryPiece.isHorizontal ? primaryPiece.row : primaryPiece.row + i;
+                int c = primaryPiece.isHorizontal ? primaryPiece.col + i : primaryPiece.col;
+                grid[r][c] = '.';
+            }
+        }
+
+        // Set new primary piece
+        primaryPiece = newPrimary;
+        primaryVehicleId = 'P';
+
+        // Update grid with new primary piece
+        for (int i = 0; i < primaryPiece.length; i++) {
+            int r = primaryPiece.isHorizontal ? primaryPiece.row : primaryPiece.row + i;
+            int c = primaryPiece.isHorizontal ? primaryPiece.col + i : primaryPiece.col;
+            grid[r][c] = 'P';
+        }
+    }
+
+    public char getPrimaryVehicleId() {
+        return primaryVehicleId;
+    }
+
+    public void setExit(int row, int col) {
+        // Check if exit is on the edge
+        boolean isValidExit = (row == -1 || row == rows || col == -1 || col == cols);
+        if (!isValidExit) {
+            throw new IllegalArgumentException("Exit point must be on the edge of the board");
+        }
+
+        // Check if exit is on a valid position
+        if (row >= 0 && row < rows && col >= 0 && col < cols) {
+            throw new IllegalArgumentException("Exit point must be outside the grid");
+        }
+
+        this.exitRow = row;
+        this.exitCol = col;
+    }
 }
