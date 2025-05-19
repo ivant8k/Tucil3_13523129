@@ -41,12 +41,9 @@ public class AStar extends Solver {
 
             if (current.board.isGoal()) {
                 long endTime = System.currentTimeMillis();
-                System.out.println("Solusi ditemukan dengan A*!");
-                System.out.println("Jumlah node dikunjungi: " + nodesVisited);
-                System.out.println("Jumlah langkah: " + current.path.size());
-                System.out.println("Waktu eksekusi: " + (endTime - startTime) + " ms");
-                printPath(current);
                 this.solutionPath = current.path;
+                this.visitedCount = nodesVisited;
+                this.executionTimeMs = endTime - startTime;
                 return;
             }
 

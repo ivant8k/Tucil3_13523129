@@ -22,22 +22,8 @@ public class IDAStar extends Solver {
             if (result.found) {
                 this.solutionPath = result.state.path;
                 long endTime = System.currentTimeMillis();
-                System.out.println("Solusi ditemukan dengan IDA*!");
-                System.out.println("Jumlah node dikunjungi: " + nodesVisited);
-                System.out.println("Jumlah langkah: " + solutionPath.size());
-                System.out.println("Waktu eksekusi: " + (endTime - startTime) + " ms");
-    
-                // Tampilkan langkah-langkah
-                System.out.println("Papan Awal:");
-                startBoard.print();
-    
-                Board current = startBoard;
-                for (int i = 0; i < solutionPath.size(); i++) {
-                    Move move = solutionPath.get(i);
-                    System.out.println("Gerakan " + (i + 1) + ": " + move);
-                    current = current.applyMove(move);
-                    current.print();
-                }
+                this.visitedCount = nodesVisited;
+                this.executionTimeMs = endTime - startTime;
                 return;
             }
     
