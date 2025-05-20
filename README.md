@@ -9,9 +9,9 @@
     <h3>Rush Hour Puzzle Solver</h3>
     <h4>Using UCS, GBFS, A*, and IDA*</h4>
     <br/>
-    <a href="https://github.com/yourusername/Tucil3_13523129/issues">Report Bug</a>
+    <a href="https://github.com/ivant8k/Tucil3_13523129/issues">Report Bug</a>
     ·
-    <a href="https://github.com/yourusername/Tucil3_13523129/issues">Request Feature</a>
+    <a href="https://github.com/ivant8k/Tucil3_13523129/issues">Request Feature</a>
   </p>
 </div>
 
