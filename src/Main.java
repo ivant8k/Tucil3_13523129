@@ -104,7 +104,7 @@ public class Main {
         String algo = scanner.nextLine().trim().toLowerCase();
 
         String heuristicChoice = "1"; // Default ke Manhattan
-        if (algo.equals("ucs") || algo.equals("gbfs") || algo.equals("a*") || algo.equals("astar") || algo.equals("ida*") || algo.equals("idastar")) {
+        if (!algo.equals("ucs")) {
             System.out.println("Pilih heuristic:");
             System.out.println("1 = Manhattan Distance");
             System.out.println("2 = Euclidean Distance");
@@ -118,7 +118,7 @@ public class Main {
         }
 
         Solver solver = switch (algo) {
-            case "ucs" -> new UCS(board, heuristicChoice);
+            case "ucs" -> new UCS(board);
             case "gbfs" -> new GBFS(board, heuristicChoice);
             case "a*", "astar" -> new AStar(board, heuristicChoice);
             case "ida*", "idastar" -> new IDAStar(board, heuristicChoice);

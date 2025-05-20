@@ -69,6 +69,14 @@ public class MainGUI extends JFrame {
         controlPanel.add(new JLabel("Heuristic:"));
         controlPanel.add(heuristicComboBox);
 
+        // Add listener to show/hide heuristic based on algorithm selection
+        algoComboBox.addActionListener(e -> {
+            String selectedAlgo = (String) algoComboBox.getSelectedItem();
+            boolean showHeuristic = !selectedAlgo.equals("UCS");
+            heuristicComboBox.setVisible(showHeuristic);
+            controlPanel.getComponent(controlPanel.getComponentCount() - 2).setVisible(showHeuristic); // Label
+        });
+
         // Run button
         JButton runButton = new JButton("Run Solver");
         controlPanel.add(runButton);
@@ -535,44 +543,61 @@ public class MainGUI extends JFrame {
 
     private void runSolver() {
         if (board == null) {
-            JOptionPane.showMessageDialog(this, "Please load or configure a board first.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Please load or create a board first.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        String algo = (String) algoComboBox.getSelectedItem();
-        String heuristic = String.valueOf(heuristicComboBox.getSelectedIndex() + 1);
-
-        solver = switch (algo.toLowerCase()) {
-            case "ucs" -> new UCS(board, heuristic);
-            case "gbfs" -> new GBFS(board, heuristic);
-            case "a*" -> new AStar(board, heuristic);
-            case "ida*" -> new IDAStar(board, heuristic);
-            default -> new AStar(board, heuristic);
+        String selectedAlgo = (String) algoComboBox.getSelectedItem();
+        String selectedHeuristic = (String) heuristicComboBox.getSelectedItem();
+        String heuristicChoice = switch (selectedHeuristic) {
+            case "Manhattan" -> "1";
+            case "Euclidean" -> "2";
+            case "Chebyshev" -> "3";
+            default -> "1";
         };
 
-        outputArea.append("Running " + algo + " with heuristic " + heuristicComboBox.getSelectedItem() + "...\n");
-        long start = System.nanoTime();
+        solver = switch (selectedAlgo) {
+            case "UCS" -> new UCS(board);
+            case "GBFS" -> new GBFS(board, heuristicChoice);
+            case "A*" -> new AStar(board, heuristicChoice);
+            case "IDA*" -> new IDAStar(board, heuristicChoice);
+            default -> new AStar(board, heuristicChoice);
+        };
+
+        // Clear previous solution
+        solutionPath = null;
+        currentStep = 0;
+        outputArea.setText("");
+
+        // Run solver
+        long startTime = System.currentTimeMillis();
         solver.solve();
-        long end = System.nanoTime();
-        double durationMs = (end - start) / 1e6;
+        long endTime = System.currentTimeMillis();
 
         solutionPath = solver.getSolutionPath();
-        currentStep = 0;
+        if (solutionPath != null && !solutionPath.isEmpty()) {
+            // Enable animation controls
+            prevStepButton.setEnabled(false);
+            nextStepButton.setEnabled(true);
+            playButton.setEnabled(true);
 
-        if (solutionPath == null || solutionPath.isEmpty()) {
+            // Display initial board
+            displayBoard(board, null);
+
+            // Show solution info
+            outputArea.append("Solution found!\n");
+            outputArea.append("Algorithm: " + selectedAlgo + "\n");
+            if (!selectedAlgo.equals("UCS")) {
+                outputArea.append("Heuristic: " + selectedHeuristic + "\n");
+            }
+            outputArea.append("Nodes visited: " + solver.getVisitedCount() + "\n");
+            outputArea.append("Solution length: " + solutionPath.size() + "\n");
+            outputArea.append("Time: " + (endTime - startTime) + " ms\n");
+        } else {
             outputArea.append("No solution found.\n");
             prevStepButton.setEnabled(false);
             nextStepButton.setEnabled(false);
             playButton.setEnabled(false);
-        } else {
-            outputArea.append("Solution found!\n");
-            outputArea.append("Nodes visited: " + solver.getVisitedCount() + "\n");
-            outputArea.append("Steps: " + solutionPath.size() + "\n");
-            outputArea.append(String.format("Execution time: %.2f ms\n", durationMs));
-            prevStepButton.setEnabled(false);
-            nextStepButton.setEnabled(true);
-            playButton.setEnabled(true);
-            displayBoard(board, null);
         }
     }
 

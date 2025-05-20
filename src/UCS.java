@@ -1,16 +1,8 @@
 import java.util.*;
 
 public class UCS extends Solver {
-    private String heuristicChoice;
-
     public UCS(Board board) {
         super(board);
-        this.heuristicChoice = "3"; // Default to Combined heuristic
-    }
-
-    public UCS(Board board, String heuristicChoice) {
-        super(board);
-        this.heuristicChoice = heuristicChoice;
     }
 
     @Override
