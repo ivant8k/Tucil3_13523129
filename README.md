@@ -3,7 +3,7 @@
 
 <br />
 <div align="center">
-  <h1 align="center">Tucil 3 - Stima</h1>
+  <h1 align="center">Tucil 3 - Strategi Algoritma</h1>
 
   <p align="center">
     <h3>Rush Hour Puzzle Solver</h3>
