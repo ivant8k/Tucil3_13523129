@@ -155,6 +155,49 @@ public class Main {
                 System.out.println("Jumlah node dikunjungi: " + solver.getVisitedCount());
                 System.out.println("Jumlah langkah: " + solution.size());
                 System.out.printf("Waktu eksekusi: %.2f ms\n", durationMs);
+
+                // Ask if user wants to save solution
+                System.out.print("\nApakah Anda ingin menyimpan solusi? (y/n): ");
+                String saveChoice = scanner.nextLine().trim().toLowerCase();
+                
+                if (saveChoice.equals("y") || saveChoice.equals("yes")) {
+                    System.out.print("Masukkan nama file output (tanpa ekstensi): ");
+                    String outputFilename = scanner.nextLine().trim();
+                    
+                    try (PrintWriter writer = new PrintWriter(new FileWriter("../test/" + outputFilename + ".txt"))) {
+                        // Write initial board state
+                        writer.println("Papan Awal:");
+                        for (int i = 0; i < board.rows; i++) {
+                            writer.println(new String(board.grid[i]));
+                        }
+                        writer.println();
+                        
+                        // Write moves
+                        writer.println("Langkah-langkah solusi:");
+                        current = board;
+                        int moveStep = 1;
+                        for (Move move : solution) {
+                            writer.println("Gerakan " + moveStep + ": " + move);
+                            current = current.applyMove(move);
+                            for (int i = 0; i < current.rows; i++) {
+                                writer.println(new String(current.grid[i]));
+                            }
+                            writer.println();
+                            moveStep++;
+                        }
+                        
+                        // Write statistics
+                        writer.println("Statistik:");
+                        writer.println("Algoritma: " + algo.toUpperCase());
+                        writer.println("Jumlah node dikunjungi: " + solver.getVisitedCount());
+                        writer.println("Jumlah langkah: " + solution.size());
+                        writer.printf("Waktu eksekusi: %.2f ms\n", durationMs);
+                        
+                        System.out.println("Solusi berhasil disimpan ke file: " + outputFilename + ".txt");
+                    } catch (IOException e) {
+                        System.out.println("Gagal menyimpan solusi: " + e.getMessage());
+                    }
+                }
             }
         }
 

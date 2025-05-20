@@ -1,0 +1,70 @@
+Papan Awal:
+AAB..F
+..BCDF
+GPPCDF
+GH.III
+GHJ...
+LLJMM.
+
+Langkah-langkah solusi:
+Gerakan 1: I-kiri
+AAB..F
+..BCDF
+GPPCDF
+GHIII.
+GHJ...
+LLJMM.
+
+Gerakan 2: C-atas
+AABC.F
+..BCDF
+GPP.DF
+GHIII.
+GHJ...
+LLJMM.
+
+Gerakan 3: F-bawah
+AABC..
+..BCDF
+GPP.DF
+GHIIIF
+GHJ...
+LLJMM.
+
+Gerakan 4: F-bawah-2
+AABC..
+..BCD.
+GPP.D.
+GHIIIF
+GHJ..F
+LLJMMF
+
+Gerakan 5: D-atas
+AABCD.
+..BCD.
+GPP...
+GHIIIF
+GHJ..F
+LLJMMF
+
+Gerakan 6: P-kanan-2
+AABCD.
+..BCD.
+G..PP.
+GHIIIF
+GHJ..F
+LLJMMF
+
+Gerakan 7: P-kanan
+AABCD.
+..BCD.
+G...PP
+GHIIIF
+GHJ..F
+LLJMMF
+
+Statistik:
+Algoritma: UCS
+Jumlah node dikunjungi: 639
+Jumlah langkah: 7
+Waktu eksekusi: 47,84 ms
