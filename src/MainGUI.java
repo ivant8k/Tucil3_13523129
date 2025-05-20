@@ -64,7 +64,7 @@ public class MainGUI extends JFrame {
         controlPanel.add(algoComboBox);
 
         // Heuristic selection
-        String[] heuristics = {"Manhattan", "Euclidean", "Chebyshev", "Combined"};
+        String[] heuristics = {"Manhattan", "Euclidean", "Chebyshev"};
         heuristicComboBox = new JComboBox<>(heuristics);
         controlPanel.add(new JLabel("Heuristic:"));
         controlPanel.add(heuristicComboBox);
