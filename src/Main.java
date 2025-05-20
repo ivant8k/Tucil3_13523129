@@ -2,6 +2,73 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
+    private static boolean validateBoardDimensions(String[] config, int rows, int cols) {
+        // Check if board is empty
+        boolean isEmpty = true;
+        for (String row : config) {
+            if (!row.replace(".", "").isEmpty()) {
+                isEmpty = false;
+                break;
+            }
+        }
+        if (isEmpty) {
+            System.out.println("Error: Board tidak boleh kosong!");
+            return false;
+        }
+
+        // Check if board is filled beyond dimensions
+        for (String row : config) {
+            if (row.length() > cols) {
+                System.out.println("Error: Board terisi melebihi ukuran kolom yang diinput!");
+                return false;
+            }
+        }
+
+        // Check if there are more rows than specified
+        if (config.length > rows) {
+            System.out.println("Error: Board terisi melebihi ukuran baris yang diinput!");
+            return false;
+        }
+
+        return true;
+    }
+
+    private static boolean validateExitPosition(String[] config, int exitRow, int exitCol, int rows, int cols) {
+        // Check if exit exists
+        if (exitRow == -1 || exitCol == -1) {
+            System.out.println("Error: Pintu keluar (K) tidak ditemukan di papan!");
+            return false;
+        }
+
+        // Check if exit is outside the grid
+        if (exitRow >= 0 && exitRow < rows && exitCol >= 0 && exitCol < cols) {
+            System.out.println("Error: Pintu keluar (K) harus berada di luar grid!");
+            return false;
+        }
+
+        // Check for multiple exits
+        int exitCount = 0;
+        for (String row : config) {
+            for (char c : row.toCharArray()) {
+                if (c == 'K') exitCount++;
+            }
+        }
+        if (exitCount > 1) {
+            System.out.println("Error: Terdapat lebih dari satu pintu keluar (K)!");
+            return false;
+        }
+
+        return true;
+    }
+
+    private static boolean validatePrimaryPiece(Board board) {
+        if (board.primaryPiece == null) {
+            System.out.println("Error: Primary piece (P) tidak ditemukan di papan!");
+            return false;
+        }
+        return true;
+    }
+
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         Board board = null;
@@ -30,6 +97,12 @@ public class Main {
                 if (!line.trim().isEmpty()) {
                     fullLines.add(line);
                 }
+            }
+
+            // Check if there are more rows than specified
+            if (fullLines.size() > rows) {
+                System.out.println("Error: File berisi lebih dari " + rows + " baris konfigurasi!");
+                return;
             }
 
             if (fullLines.size() < rows) {
@@ -61,24 +134,27 @@ public class Main {
                 }
             }
 
+            // Validate board dimensions and content
+            if (!validateBoardDimensions(config, rows, cols)) {
+                return;
+            }
+
             board = new Board(config);
             board.exitRow = exitRow;
             board.exitCol = exitCol;
 
+            // Validate exit position
+            if (!validateExitPosition(config, exitRow, exitCol, rows, cols)) {
+                return;
+            }
+
+            // Validate primary piece
+            if (!validatePrimaryPiece(board)) {
+                return;
+            }
+
             System.out.println("\nPapan Awal:");
             board.print();
-
-            if (board.primaryPiece == null) {
-                System.out.println("Error: Primary piece (P) tidak ditemukan di papan!");
-                return;
-            }
-            if (board.exitRow == -1 || board.exitCol == -1) {
-                System.out.println("Error: Pintu keluar (K) tidak ditemukan di papan!");
-                return;
-            }
-
-            System.out.println("Primary piece: " + board.primaryPiece);
-            System.out.println("Pintu keluar berada di: (" + board.exitRow + "," + board.exitCol + ")");
 
             if (board.isGoal()) {
                 System.out.println("Primary piece sudah mencapai pintu keluar.");
