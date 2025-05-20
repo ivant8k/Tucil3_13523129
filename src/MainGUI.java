@@ -311,6 +311,73 @@ public class MainGUI extends JFrame {
         }
     }
 
+    private boolean validateBoardDimensions(String[] config, int rows, int cols) {
+        // Check if board is empty
+        boolean isEmpty = true;
+        for (String row : config) {
+            if (!row.replace(".", "").isEmpty()) {
+                isEmpty = false;
+                break;
+            }
+        }
+        if (isEmpty) {
+            JOptionPane.showMessageDialog(this, "Error: Board tidak boleh kosong!", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        // Check if board is filled beyond dimensions
+        for (String row : config) {
+            if (row.length() > cols) {
+                JOptionPane.showMessageDialog(this, "Error: Board terisi melebihi ukuran kolom yang diinput!", "Error", JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+        }
+
+        // Check if there are more rows than specified
+        if (config.length > rows) {
+            JOptionPane.showMessageDialog(this, "Error: Board terisi melebihi ukuran baris yang diinput!", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean validateExitPosition(String[] config, int exitRow, int exitCol, int rows, int cols) {
+        // Check if exit exists
+        if (exitRow == -1 || exitCol == -1) {
+            JOptionPane.showMessageDialog(this, "Error: Pintu keluar (K) tidak ditemukan di papan!", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        // Check if exit is outside the grid
+        if (exitRow >= 0 && exitRow < rows && exitCol >= 0 && exitCol < cols) {
+            JOptionPane.showMessageDialog(this, "Error: Pintu keluar (K) harus berada di luar grid!", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        // Check for multiple exits
+        int exitCount = 0;
+        for (String row : config) {
+            for (char c : row.toCharArray()) {
+                if (c == 'K') exitCount++;
+            }
+        }
+        if (exitCount > 1) {
+            JOptionPane.showMessageDialog(this, "Error: Terdapat lebih dari satu pintu keluar (K)!", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean validatePrimaryPiece(Board board) {
+        if (board.primaryPiece == null) {
+            JOptionPane.showMessageDialog(this, "Error: Primary piece (P) tidak ditemukan di papan!", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        return true;
+    }
+
     private void submitConfiguration() {
         try {
             int rows = Integer.parseInt(rowsField.getText().trim());
@@ -331,13 +398,19 @@ public class MainGUI extends JFrame {
                 config[i] = row.toString();
             }
 
+            // Validate board dimensions and content
+            if (!validateBoardDimensions(config, rows, cols)) {
+                return;
+            }
+
             // Initialize board
             board = new Board(config);
 
             // Validate primary piece
-            if (board.primaryPiece == null) {
-                throw new IllegalArgumentException("Primary piece (P) not found. Ensure it is 2 or 3 cells long (e.g., PP or PPP for primary piece, AA for others, . for empty).");
+            if (!validatePrimaryPiece(board)) {
+                return;
             }
+
             if (board.primaryPiece.length < 2 || board.primaryPiece.length > 3) {
                 throw new IllegalArgumentException("Primary piece (P) has invalid length: " + board.primaryPiece.length + ". Use 2 or 3 cells (e.g., PP or PPP).");
             }
@@ -374,6 +447,14 @@ public class MainGUI extends JFrame {
                 exitCol = cols;
             }
 
+            board.exitRow = exitRow;
+            board.exitCol = exitCol;
+
+            // Validate exit position
+            if (!validateExitPosition(config, exitRow, exitCol, rows, cols)) {
+                return;
+            }
+
             // Validate exit alignment with primary piece
             boolean isHorizontal = board.primaryPiece.isHorizontal;
             boolean validExit = false;
@@ -393,9 +474,6 @@ public class MainGUI extends JFrame {
             if ((edge.equals("Left") || edge.equals("Right")) && (exitRow < 0 || exitRow >= rows)) {
                 throw new IllegalArgumentException("Exit position " + exitRow + " is out of bounds for " + edge + " edge.");
             }
-
-            board.exitRow = exitRow;
-            board.exitCol = exitCol;
 
             // Display board
             displayBoard(board, null);
@@ -449,6 +527,11 @@ public class MainGUI extends JFrame {
                 config[i] = l;
             }
 
+            // Validate board dimensions and content
+            if (!validateBoardDimensions(config, rows, cols)) {
+                return;
+            }
+
             int exitRow = -1, exitCol = -1;
             for (int i = 0; i < lines.size(); i++) {
                 int kIndex = lines.get(i).indexOf('K');
@@ -460,18 +543,17 @@ public class MainGUI extends JFrame {
             }
 
             board = new Board(config);
-            if (board.primaryPiece == null) {
-                throw new IllegalArgumentException("Primary piece (P) not found in file. Ensure it is 2 or 3 cells long (e.g., PP or PPP).");
-            }
-            if (board.primaryPiece.length < 2 || board.primaryPiece.length > 3) {
-                throw new IllegalArgumentException("Primary piece (P) has invalid length: " + board.primaryPiece.length + ". Use 2 or 3 cells.");
-            }
-
             board.exitRow = exitRow;
             board.exitCol = exitCol;
 
-            if (board.exitRow == -1 && board.exitCol == -1) {
-                throw new IllegalArgumentException("Exit (K) not found.");
+            // Validate exit position
+            if (!validateExitPosition(config, exitRow, exitCol, rows, cols)) {
+                return;
+            }
+
+            // Validate primary piece
+            if (!validatePrimaryPiece(board)) {
+                return;
             }
 
             displayBoard(board, null);
